@@ -14,12 +14,24 @@ use crate::{compiler_types::*, context::*, globals::Globals, levelstring::*, val
 
 use internment::Intern;
 
+//use tungstenite::protocol::WebSocket;
+//use tungstenite::stream::MaybeTlsStream;
+use std::net::TcpStream;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use std::collections::HashMap;
 
 use std::path::PathBuf;
 
 use crate::compiler::RuntimeError;
+
+#[derive(Debug, Clone)]
+pub struct OpenTcp(pub Rc<RefCell<TcpStream>>);
+impl PartialEq for OpenTcp {
+    fn eq(&self, _other: &Self) -> bool {false}
+    fn ne(&self, _other: &Self) -> bool {false}
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Value {
@@ -40,7 +52,9 @@ pub enum Value {
     TypeIndicator(TypeId),
     Range(i32, i32, usize), //start, end, step
     Pattern(Pattern),
+    TcpStream(OpenTcp),
     Null,
+
 }
 
 pub type Slice = (Option<isize>, Option<isize>, Option<isize>);
@@ -122,6 +136,7 @@ pub fn value_equality(val1: StoredValue, val2: StoredValue, globals: &Globals) -
             }
             true
         }
+        (Value::TcpStream(_), Value::TcpStream(_)) => false,
         (a, b) => a == b,
     }
 }
@@ -158,6 +173,7 @@ impl Value {
             Value::Null => 15,
             Value::Range(_, _, _) => 17,
             Value::Pattern(_) => 18,
+            Value::TcpStream(_) => 21,
         }
     }
 
@@ -282,6 +298,7 @@ impl Value {
                     format!("{}..{}", start, end)
                 }
             }
+            Value::TcpStream(_) => String::from("<a tcp stream>"),
             Value::Dict(dict_in) => {
                 let mut out = String::new();
 

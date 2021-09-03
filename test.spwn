@@ -1,0 +1,2 @@
+let socket = $.open_tcp_stream("127.0.0.1:3012")
+$.print(socket)

@@ -32,6 +32,8 @@ slyce = "0.3.1"
 rand = "0.8.4"
 tempfile = "3.2.0"
 reqwest = { version = "0.11", features = ["blocking"] }
+tungstenite = "0.15.0"
+url = "2.2.2"
 
 internment = "0.5.4"
 

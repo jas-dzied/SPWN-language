@@ -16,8 +16,11 @@ use rand::seq::SliceRandom;
 use rand::Rng;
 use std::io::stdout;
 use std::io::Write;
+use std::net::TcpStream;
 
 use reqwest;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 //use text_io;
 use crate::compiler_info::{CodeArea, CompilerInfo};
@@ -614,6 +617,12 @@ builtins! {
     [Matches]
     fn matches((val), (pattern)) {
         Value::Bool(val.matches_pat(&pattern, &info, globals, context)?)
+    }
+
+    [OpenTcpStream]
+    fn open_tcp_stream((listener): Str) {
+        let stream = TcpStream::connect(&listener).expect("Failed to connect to socket");
+        Value::TcpStream(OpenTcp(Rc::new(RefCell::new(stream))))
     }
 
     [B64Encode]
